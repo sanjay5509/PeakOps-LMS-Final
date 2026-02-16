@@ -1,0 +1,87 @@
+﻿@model PeakOps.Core.Entities.Ticket
+
+<div class="container-xxl">
+    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Support /</span> Raise New Ticket</h4>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <h5 class="card-header">Ticket Details</h5>
+                <div class="card-body">
+                    <form asp-action="Create">
+
+                        <div class="mb-3">
+                            <label class="form-label">Select Project *</label>
+                            <select asp-for="ProjectId" id="ProjectId" class="form-select" asp-items="ViewBag.ProjectId" required>
+                                <option value="">-- Choose Project --</option>
+                            </select>
+                            <div class="form-text">Choose the project you are facing issues with.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Assign To Team Member *</label>
+                            <select name="AssignedUserId" id="AssignedUserId" class="form-select" required disabled>
+                                <option value="">-- Pehle Project Select Karein --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Subject / Issue Title *</label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g. Server is down" required />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Issue Type</label>
+                                <select asp-for="TicketTypeId" class="form-select" asp-items="ViewBag.TicketTypeId"></select>
+                            </div>
+                            <div class="col-md-6 mb-3">     
+                                <label class="form-label">Priority</label>
+                                <select asp-for="TicketPriorityId" class="form-select" asp-items="ViewBag.TicketPriorityId"></select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Detailed Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="5" placeholder="Describe the issue..."></textarea>
+                        </div>
+
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+           
+            $('#ProjectId').on('change', function () {
+                var pId = $(this).val();
+                var $userDropdown = $('#AssignedUserId');
+
+                if (pId) {
+
+                    $.getJSON('/Support/GetProjectUsers', { projectId: pId }, function (data) {
+                        $userDropdown.empty();
+                        $userDropdown.append('<option value="">-- Select Team Member --</option>');
+
+                        $.each(data, function (i, item) {
+                            $userDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                        });
+
+                        $userDropdown.removeAttr('disabled'); 
+                    });
+                } else {
+                    $userDropdown.empty().append('<option value="">-- Pehle Project Select Karein --</option>');
+                    $userDropdown.attr('disabled', 'disabled');
+                }
+            });
+        });
+    </script>
+}

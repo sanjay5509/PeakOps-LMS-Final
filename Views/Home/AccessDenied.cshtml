@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_Layout";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="misc-wrapper text-center">
+        <h2 class="mb-2 mx-2">Access Denied! ✋</h2>
+        <p class="mb-4 mx-2 text-danger fw-bold">Bhai, aapke paas is page ko dekhne ki permission nahi hai.</p>
+        <div class="mt-4">
+            <img src="~/assets/img/illustrations/page-misc-error-light.png" alt="access-denied" width="350" class="img-fluid" />
+        </div>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Back to Home</a>
+    </div>
+</div>

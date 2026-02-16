@@ -1,0 +1,55 @@
+﻿@model PeakOps.Core.Entities.Theme
+
+<div class="container-xxl">
+    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Masters /</span> New Theme</h4>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <h5 class="card-header">Theme Details</h5>
+                <div class="card-body">
+                    <form asp-action="Create" novalidate>
+
+                        <div class="row">
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Version</label>
+                                <input asp-for="CurrentVersion" class="form-control" placeholder="e.g. v1.0" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Theme Name *</label>
+                            <input asp-for="ThemeName" class="form-control" placeholder="e.g. Dark Enterprise Theme" required />
+                            <span asp-validation-for="ThemeName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Demo URL</label>
+                            <input asp-for="DemoUrl" class="form-control" placeholder="https://..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tags</label>
+                            <input asp-for="Tags" class="form-control" placeholder="e.g. E-commerce, Minimalist" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Theme</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

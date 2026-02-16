@@ -1,0 +1,72 @@
+﻿@model IEnumerable<PeakOps.Core.Entities.Theme>
+@using PeakOps.Core.Services
+@using System.Security.Claims
+@inject PermissionService _permissionService
+
+@{
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    long currentUserId = 0;
+    if (userIdClaim != null) { long.TryParse(userIdClaim.Value, out currentUserId); }
+    bool isSuperAdmin = User.IsInRole("SuperAdmin");
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold py-3 mb-0">Themes</h4>
+
+        @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "ADD_EDIT_THEME"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bx bx-plus"></i> Add New Theme
+            </a>
+        }
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Theme Name</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.ThemeCode</strong></td>
+                            <td>
+                                @item.ThemeName<br />
+                                <small class="text-muted">@item.Tags</small>
+                            </td>
+                            <td><span class="badge bg-label-info">@item.CurrentVersion</span></td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge bg-label-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-label-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                            
+                                @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "ADD_EDIT_THEME"))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
+                                        <i class="bx bx-edit-alt"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

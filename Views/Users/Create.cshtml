@@ -1,0 +1,85 @@
+﻿@model PeakOps.Core.Entities.User
+
+@{
+    ViewData["Title"] = "Add New User";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-secondary" style="font-weight: 600;">Add New User</h4>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h6 class="m-0 font-weight-bold text-primary">User Details</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                        <input asp-for="FirstName" class="form-control" placeholder="Enter first name" required />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                        <input asp-for="LastName" class="form-control" placeholder="Enter last name" required />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="user@example.com" required />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <small class="text-muted">An invite link will be sent to this email.</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Mobile" class="form-label fw-bold">Mobile Number</label>
+                        <input asp-for="Mobile" class="form-control" placeholder="Enter mobile number" />
+                        <span asp-validation-for="Mobile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Designation" class="form-label fw-bold">Designation</label>
+                        <input asp-for="Designation" class="form-control" placeholder="e.g. Sales Manager" />
+                        <span asp-validation-for="Designation" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Assign Role <span class="text-danger">*</span></label>
+                        <select name="SelectedRoleId" class="form-control form-select" asp-items="ViewBag.Roles" required>
+                            <option value="">-- Select Role --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-light border px-4" style="margin-right: 10px;">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fa fa-paper-plane"></i> Create & Invite
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

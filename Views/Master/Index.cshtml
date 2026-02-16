@@ -1,0 +1,65 @@
+﻿@model IEnumerable<object>
+
+@{
+    ViewData["Title"] = ViewBag.TableName;
+    var firstItem = Model.FirstOrDefault(); 
+    }
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="text-primary">@ViewBag.TableName Management</h5>
+
+        <a href="@Url.Action("Create", "Master", new { tableName = ViewBag.TableName })" class="btn btn-primary">
+            <i class="bx bx-plus me-1"></i> Add New
+        </a>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+    
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        @foreach (var prop in firstItem.GetType().GetProperties())
+                        {
+                            
+                            <th>@prop.Name</th>
+                        }
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            @foreach (var prop in item.GetType().GetProperties())
+                            {
+                                <td>@prop.GetValue(item)</td>
+                            }
+                            <td>
+                                @{
+                                    var idVal = item.GetType().GetProperty("Id").GetValue(item);
+                                }
+                                <a href="@Url.Action("Edit", "Master", new { tableName = ViewBag.TableName, id = idVal })" class="btn btn-sm btn-icon text-primary">
+                                    <i class="bx bx-edit"></i>
+                                </a>
+
+                                <a href="@Url.Action("Delete", "Master", new { tableName = ViewBag.TableName, id = idVal })"
+                                   class="btn btn-sm btn-icon text-danger"
+                                   onclick="return confirm('Pakka uda dun?');">
+                                    <i class="bx bx-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="p-4 text-center">
+                <p>Koi Data nahi hai bhai is table mein.</p>
+            </div>
+        }
+    </div>
+</div>

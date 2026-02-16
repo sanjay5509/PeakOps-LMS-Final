@@ -1,0 +1,106 @@
+﻿@model PeakOps.Core.ViewModels.PermissionViewModel
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-header border-bottom">
+            <h5 class="card-title">Role Permissions Management</h5>
+            <div class="row mt-3">
+                <div class="mb-3">
+                    <label class="form-label">SELECT ROLE</label>
+                    <select id="RoleDropdown" class="form-control">
+                        <option value="">-- Select Role --</option>
+                        @foreach (var role in ViewBag.Roles)
+                        {
+                            <option value="@role.Id" selected="@(role.Id == Model.RoleId ? "selected" : null)">
+                                @role.RoleName
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-body pt-4">
+            <div id="TreeContainer" style="display:none;">
+                <div id="PermissionTree"></div>
+                <button id="BtnSave" class="btn btn-primary mt-4">Save Permissions</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+           
+            var initialRoleId = $('#RoleDropdown').val();
+            if (initialRoleId) {
+                loadTree(initialRoleId);   
+            }
+
+           
+            $('#RoleDropdown').change(function () {
+                var roleId = $(this).val();
+                if (roleId) {
+                    loadTree(roleId);
+                } else {
+                    $('#TreeContainer').hide(); 
+                }
+            });
+
+            function loadTree(roleId) {
+                
+                $.get('/Permissions/GetPermissionTree', { roleId: roleId }, function (data) {
+                    if (data && data.length > 0) {
+                        var html = renderRecursive(data);
+                        $('#PermissionTree').html(html);
+                        $('#TreeContainer').show();
+                    } else {
+                        $('#PermissionTree').html('<p class="text-danger">No Permission Found In Master List!</p>');
+                        $('#TreeContainer').show();
+                    }
+                });
+            }
+
+            function renderRecursive(nodes) {
+                var ul = '<ul class="list-unstyled ms-4 border-start ps-3">';
+                nodes.forEach(function (node) {
+                    var isChecked = node.isAllowed ? 'checked' : '';
+                    ul += `<li class="mt-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input perm-node" type="checkbox"
+                                                   value="${node.id}" ${isChecked}>
+                                            <label class="form-check-label">${node.permissionName}</label>
+                                        </div>`;
+                    if (node.children && node.children.length > 0) {
+                        ul += renderRecursive(node.children);
+                    }   
+                    ul += '</li>';
+                });
+                ul += '</ul>';
+                return ul;
+            }
+
+           
+            $(document).on('change', '.perm-node', function () {
+                var checked = $(this).prop('checked');
+                $(this).closest('li').find('input[type="checkbox"]').prop('checked', checked);
+            });     
+
+            
+            $('#BtnSave').click(function () {
+                var roleId = $('#RoleDropdown').val();
+                var selectedPerms = [];
+
+                $('.perm-node:checked').each(function () {
+                    selectedPerms.push($(this).val());
+                });
+
+                $.post('/Permissions/SaveRolePermissions', { roleId: roleId, permissionIds: selectedPerms }, function (res) {
+                 
+                    alert("Permissions Saved  Successfully, Bhai!");
+                });
+            });
+        });
+    </script>
+}

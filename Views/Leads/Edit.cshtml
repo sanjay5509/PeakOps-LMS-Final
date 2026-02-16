@@ -1,0 +1,64 @@
+﻿@model PeakOps.Core.ViewModels.LeadViewModel
+
+@{
+    ViewData["Title"] = "Edit Lead";
+}
+
+<div class="row">
+    <div class="col-xl">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Edit Lead</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="POST">
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="LeadTitle"></label>
+                            <input type="text" class="form-control" asp-for="LeadTitle" />
+                            <span asp-validation-for="LeadTitle" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="BusinessName"></label>
+                            <input type="text" class="form-control" asp-for="BusinessName" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="ContactPerson"></label>
+                            <input type="text" class="form-control" asp-for="ContactPerson" />
+                            <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="Mobile"></label>
+                            <input type="text" class="form-control" asp-for="Mobile" />
+                            <span asp-validation-for="Mobile" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" asp-for="StatusId" asp-items="Model.StatusList"></select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Source</label>
+                            <select class="form-select" asp-for="SourceId" asp-items="Model.SourceList"></select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stage</label>
+                            <select class="form-select" asp-for="LeadStageId" asp-items="Model.StageList"></select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Lead</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

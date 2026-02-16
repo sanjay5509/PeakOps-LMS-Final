@@ -1,0 +1,91 @@
+﻿@model IEnumerable<PeakOps.Core.Entities.Ticket>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold py-3 mb-0">Support Center</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bx bx-plus me-1"></i> Raise Ticket
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Project</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Raised By</th>
+                        <th>Assigned To</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>#@item.Id</strong></td>
+                            <td>
+                                @if (item.Project != null)
+                                {
+                                    <span class="badge bg-label-secondary">@item.Project.ProjectName</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td>@item.Title</td>
+                            <td>
+                                @if (item.TicketStatusId == 1)
+                                {
+                                    <span class="badge bg-label-success">Open</span>
+                                }
+                                else if (item.TicketStatusId == 2)
+                                {
+                                    <span class="badge bg-label-warning">In Progress</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-label-dark">Closed</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.TicketPriority?.StatusName == "High" || item.TicketPriority?.StatusName == "Urgent")
+                                {
+                                    <span class="text-danger fw-bold">@item.TicketPriority?.StatusName</span>
+                                }
+                                else
+                                {
+                                    <span>@item.TicketPriority?.StatusName</span>
+                                }
+                            </td>
+                            <td>@item.CreatedBy?.FirstName</td>
+                            <td>
+                                @if (item.Assignments != null && item.Assignments.Any())
+                                {
+                                    var assignee = item.Assignments.FirstOrDefault()?.AssignedUser;
+                                    <span class="badge bg-label-info"><i class="bx bx-user me-1"></i> @assignee?.FirstName</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-label-secondary">Unassigned</span>
+                                }
+                            </td>
+                            <td>@item.CreatedOn.ToString("dd MMM")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
+                                    <i class="bx bx-show-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

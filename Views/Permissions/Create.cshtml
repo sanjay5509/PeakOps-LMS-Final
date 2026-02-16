@@ -1,0 +1,46 @@
+﻿    @model PeakOps.Core.Entities.Permission
+
+<div class="card">
+    <div class="card-header"><h5>Create New Permission</h5></div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label>Display Name (e.g. Add Lead)</label>
+                <input asp-for="PermissionName" class="form-control" />
+                <span asp-validation-for="PermissionName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Permission Key (e.g. Leads_Add)</label>
+                <input asp-for="PermissionKey" class="form-control" />
+                <span asp-validation-for="PermissionKey" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Parent Section (Optional)</label>
+                <select asp-for="ParentId" class="form-control">
+                    <option value="">-- No Parent (Main Section) --</option>
+                    @if (ViewBag.Parents != null)
+                    {
+                        @foreach (var p in (List<PeakOps.Core.Entities.Permission>)ViewBag.Parents)
+                        {
+                            <option value="@p.Id">@p.PermissionName</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="ParentId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">Save Key</button>
+            <a asp-action="Index" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

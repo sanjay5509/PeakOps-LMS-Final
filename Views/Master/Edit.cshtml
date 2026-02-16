@@ -1,0 +1,49 @@
+﻿@using System.Reflection
+@model object
+
+@{
+    ViewData["Title"] = "Edit " + ViewBag.TableName;
+    var properties = Model.GetType().GetProperties();
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Edit @ViewBag.TableName</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-tableName="@ViewBag.TableName" asp-route-id="@Model.GetType().GetProperty("Id").GetValue(Model)" method="POST">
+
+            @foreach (var prop in properties)
+            {
+                
+                if (prop.Name == "Id" || prop.Name == "CreatedOn" || prop.Name == "ModifiedOn") continue;
+
+                var currentValue = prop.GetValue(Model);
+
+                if (prop.PropertyType == typeof(bool))
+                {
+                    <div class="mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="@prop.Name" name="@prop.Name" value="true" @(currentValue != null && (bool)currentValue ? "checked" : "") />
+                            <label class="form-check-label" for="@prop.Name">@prop.Name</label>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <label class="form-label" for="@prop.Name">@prop.Name</label>
+                        <input type="@(prop.PropertyType == typeof(int) ? "number" : "text")"
+                               class="form-control"
+                               id="@prop.Name"
+                               name="@prop.Name"
+                               value="@currentValue" required />
+                    </div>
+                }
+            }
+
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="@Url.Action("Index", new { tableName = ViewBag.TableName })" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,170 @@
+﻿@model IEnumerable<PeakOps.Core.Entities.User>
+@using PeakOps.Core.Services
+@using System.Security.Claims
+@inject PermissionService _permissionService
+
+@{
+    ViewData["Title"] = "User Management";
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    long currentUserId = 0;
+    if (userIdClaim != null)
+    {
+        long.TryParse(userIdClaim.Value, out currentUserId);
+    }
+
+   
+    bool isSuperAdmin = User.IsInRole("SuperAdmin");
+}
+
+@if (TempData["InviteLink"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class='bx bx-check-circle fs-4 me-2'></i>
+            <h5 class="alert-heading mb-0">Success!</h5>
+        </div>
+        <p class="mt-2">@TempData["Message"]</p>
+        <hr>
+        <div class="bg-white p-2 rounded border">
+            <strong class="text-secondary small">INVITATION LINK:</strong><br />
+            <a href="@TempData["InviteLink"]" target="_blank" class="fw-bold text-primary text-decoration-underline" style="word-break: break-all;">
+                Click Here to Set Password
+            </a>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">System Users</h5>
+
+        
+        @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "Add_Edit_User"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bx bx-plus me-1"></i> Add New User
+            </a>
+        }
+    </div>
+
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name / Role</th>
+                    <th>Contact Info</th>
+                    <th>Designation</th>
+                    <th>Status</th>
+                    <th>Joined On</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                      
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-white">@item.FirstName @item.LastName</span>
+                                <div class="mt-1">
+                                    @if (item.UserRoles != null && item.UserRoles.Any())
+                                    {
+                                        @foreach (var role in item.UserRoles)
+                                        {
+                                            <span class="badge bg-label-info me-1" style="font-size: 0.7rem;">@role.Role.RoleName</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-warning small">No Role</span>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+
+                    
+                        <td>
+                            <div class="d-flex flex-column">
+                                <small><i class="bx bx-envelope me-1"></i> @item.Email</small>
+                                @if (!string.IsNullOrEmpty(item.Mobile))
+                                {
+                                    <small class="text-muted"><i class="bx bx-phone me-1"></i> @item.Mobile</small>
+                                }
+                            </div>
+                        </td>
+
+                    
+                        <td>@(string.IsNullOrEmpty(item.Designation) ? "-" : item.Designation)</td>
+
+                        
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-label-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-label-secondary">Inactive</span>
+                            }
+                        </td>
+
+                    
+                        <td>@item.CreatedOn.ToString("dd MMM yyyy")</td>
+
+                      
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "Add_Edit_User"))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="text-primary me-3" title="Edit" data-bs-toggle="tooltip">
+                                        <i class="bx bx-edit-alt fs-4"></i>
+                                    </a>
+                                }
+
+                                @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "Delete_User"))
+                                {
+                                    <a href="javascript:void(0);" onclick="confirmDelete('@Url.Action("Delete", new { id = item.Id })')" class="text-danger" title="Delete" data-bs-toggle="tooltip">
+                                        <i class="bx bx-trash fs-4"></i>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+       
+        function confirmDelete(deleteUrl) {
+            Swal.fire({
+                title: 'Confirm Deletion',
+                text: "Are you sure? This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Delete it!',
+                background: '#2b2c40', 
+                color: '#ffffff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        }
+    </script>
+}

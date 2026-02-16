@@ -1,0 +1,107 @@
+﻿@model PeakOps.Core.ViewModels.LeadViewModel
+
+@{
+    ViewData["Title"] = "Add New Lead";
+}
+
+<div class="row">
+    <div class="col-xl">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Create New Lead</h5>
+                <small class="text-muted float-end">Enter lead details</small>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="POST">
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="LeadTitle"></label>
+                            <input type="text" class="form-control" asp-for="LeadTitle" placeholder="e.g. Website for Cafe" autofocus />
+                            <span asp-validation-for="LeadTitle" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="BusinessName"></label>
+                            <input type="text" class="form-control" asp-for="BusinessName" placeholder="Client Company Name" />
+                            <span asp-validation-for="BusinessName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="ContactPerson"></label>
+                            <input type="text" class="form-control" asp-for="ContactPerson" placeholder="Client Name" />
+                            <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="Mobile"></label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                                <input type="text" class="form-control" asp-for="Mobile" placeholder="9876543210" />
+                            </div>
+                            <span asp-validation-for="Mobile" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="Email"></label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                                <input type="text" class="form-control" asp-for="Email" placeholder="client@email.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="AlternateMobile">Alt. Mobile</label>
+                            <input type="text" class="form-control" asp-for="AlternateMobile" placeholder="Optional" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="City"></label>
+                            <input type="text" class="form-control" asp-for="City" placeholder="e.g. Mumbai" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" asp-for="IndustryName"></label>
+                            <input type="text" class="form-control" asp-for="IndustryName" placeholder="e.g. IT, Textile, Cafe" />
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+                    <h6 class="text-muted">Lead Details</h6>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" asp-for="StatusId">Status</label>
+                            <select class="form-select" asp-for="StatusId" asp-items="Model.StatusList">
+                                <option value="">-- Select Status --</option>
+                            </select>
+                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" asp-for="SourceId">Source</label>
+                            <select class="form-select" asp-for="SourceId" asp-items="Model.SourceList">
+                                <option value="">-- Select Source --</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" asp-for="LeadStageId">Stage</label>
+                            <select class="form-select" asp-for="LeadStageId" asp-items="Model.StageList">
+                                <option value="">-- Select Stage --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">Save Lead</button>
+                    <a asp-action="Index" class="btn btn-secondary mt-3">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

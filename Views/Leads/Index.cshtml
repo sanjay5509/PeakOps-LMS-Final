@@ -1,0 +1,138 @@
+﻿@model IEnumerable<PeakOps.Core.Entities.Lead>
+@using PeakOps.Core.Services
+@using System.Security.Claims
+@inject PermissionService _permissionService
+
+@{
+    ViewData["Title"] = "All Leads";
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    long currentUserId = 0;
+    if (userIdClaim != null) { long.TryParse(userIdClaim.Value, out currentUserId); }
+    bool isSuperAdmin = User.IsInRole("SuperAdmin");
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Leads Management</h5>
+     
+        @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "ADD_EDIT_LEAD"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bx bx-plus me-1"></i> Add New Lead
+            </a>
+        }
+    </div>
+
+ 
+    <div class="card-body border-bottom">
+        <form method="get" asp-action="Index">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="searchTerm" class="form-control" placeholder="Name, Mobile or Company..." value="@ViewBag.CurrentSearch" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Filter by Status</label>
+                    <select name="statusId" class="form-select" asp-items="ViewBag.StatusList">
+                        <option value="">-- All Statuses --</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2"><i class="bx bx-search me-1"></i> Search</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Lead Title</th>
+                    <th>Contact Person</th>
+                    <th>Mobile</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Created On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                         
+                            <td>
+                                <strong>@item.LeadTitle</strong><br />
+                                <small class="text-muted">@item.BusinessName</small>
+                            </td>
+                   
+                            <td>@item.ContactPerson</td>
+                            
+                            <td><i class="bx bx-phone me-1"></i> @item.Mobile</td>
+                     
+                            <td>
+                                <span class="badge bg-label-primary">@item.Status?.StatusName</span>
+                            </td>
+                         
+                            <td>@(item.Source?.Title ?? "-")</td>
+                          
+                            <td>@item.CreatedOn.ToString("dd MMM yyyy")</td>
+                       
+                            <td>
+                                <div class="d-flex">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-icon text-secondary" title="View Details">
+                                        <i class="bx bx-show fs-3"></i>
+                                    </a>
+
+                                    @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "ADD_EDIT_LEAD"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon item-edit text-primary" title="Edit">
+                                            <i class="bx bx-edit fs-3"></i>
+                                        </a>
+                                    }
+
+                                    @if (isSuperAdmin || await _permissionService.HasPermission(currentUserId, "DELETE_LEAD"))
+                                    {
+                                        <a href="javascript:void(0);" class="btn btn-sm btn-icon item-delete text-danger ms-2" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="setDeleteUrl('@Url.Action("Delete", "Leads", new { id = item.Id })')">
+                                            <i class="bx bx-trash fs-3"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" class="text-center py-4">Koi Lead nahi mili.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+        
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"><p>Are you sure? Uda duna pkka?</p></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="btnConfirmDelete" class="btn btn-danger">Yes, Delete it!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setDeleteUrl(url) { document.getElementById('btnConfirmDelete').href = url; }
+</script>

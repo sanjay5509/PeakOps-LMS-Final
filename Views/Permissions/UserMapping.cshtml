@@ -1,0 +1,183 @@
+﻿@model IEnumerable<PeakOps.Core.Entities.Permission>
+
+@{
+    ViewData["Title"] = "User Permissions Overrides";
+}
+
+@functions {
+    public void RenderSneatTree(int? parentId, IEnumerable<PeakOps.Core.Entities.Permission> all)
+    {
+        var children = all.Where(x => x.ParentId == parentId).OrderBy(x => x.PermissionName).ToList();
+        if (children.Any())
+        {
+            <ul class="list-unstyled ms-4 mt-2 border-start ps-3">
+                @foreach (var item in children)
+                {
+                    <li class="mb-3">
+                        <div class="d-flex align-items-center justify-content-between permission-row">
+                            <div class="form-check custom-option-basic p-0">
+                                <input class="form-check-input ms-0 me-2 permission-checkbox" type="checkbox" id="perm_@item.Id"
+                                       data-id="@item.Id" onchange="saveOverride(@ViewBag.SelectedUserId, @item.Id, this.checked)" />
+                                <label class="form-check-label fw-semibold text-heading" for="perm_@item.Id">
+                                    @item.PermissionName
+                                </label>
+                            </div>
+                            
+                        </div>
+                        @{
+                            RenderSneatTree(item.Id, all);
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    }
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card shadow-none border">
+        <div class="card-header d-flex align-items-center justify-content-between pb-3 border-bottom">
+            <div class="card-title mb-0">
+                <h5 class="m-0 me-2"><i class="bx bx-user-check me-2"></i> User-Specific Access Control</h5>
+                <small class="text-muted">Individually override role permissions for specific users</small>
+            </div>
+            @if (ViewBag.SelectedUserId != null)
+            {
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="resetToDefaults(@ViewBag.SelectedUserId)">
+                    <i class="bx bx-reset me-1"></i> Reset to Role Defaults
+                </button>
+            }
+        </div>
+        <div class="card-body pt-4">
+            <div class="row mb-4 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Select User Account</label>
+                    <select id="userSelect" class="form-select select2">
+                        <option value="">-- Search and Select User --</option>
+                        @foreach (var user in (IEnumerable<dynamic>)ViewBag.Users)
+                        {
+                            
+                            <option value="@user.Id" selected="@(ViewBag.SelectedUserId?.ToString() == user.Id.ToString())">
+                                @user.FirstName @user.LastName (@user.Designation)
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            @if (ViewBag.SelectedUserId != null)
+            {
+                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                    <span class="badge badge-center rounded-pill bg-warning me-3"><i class="bx bx-error"></i></span>
+                    <div class="d-flex flex-column ps-1">
+                        <h6 class="alert-heading d-flex align-items-center fw-bold mb-1">Attention!</h6>
+                        <span>Any changes made here will override the user's default role settings immediately.</span>
+                    </div>
+                </div>
+
+                <div class="bg-light rounded p-4 mt-4 border border-dashed">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-uppercase text-muted small fw-bold">Permission </span>
+                        
+                    </div>
+                    @{
+                        RenderSneatTree(null, Model);
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <img src="~/assets/img/illustrations/man-with-laptop-light.png" height="140" alt="Select User" class="mb-3">
+                    <p class="text-muted">Please select a user to view and override their specific permissions.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .ms-4 {
+        margin-left: 2rem !important;
+    }
+
+    .border-start {
+        border-left: 2px solid #e7e7ff !important;
+    }
+
+    .bg-light {
+        background-color: #fcfcfd !important;
+    }
+
+    .border-dashed {
+        border-style: dashed !important;
+    }
+
+    .permission-row {
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+
+        .permission-row:hover {
+            background-color: #f5f5f9;
+        }
+
+    .form-check-input:checked {
+        background-color: #696cff;
+        border-color: #696cff;
+    }
+
+    .badge.bg-label-primary {
+        background-color: #e7e7ff !important;
+        color: #696cff !important;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+       
+            $('#userSelect').on('change', function () {
+                var userId = $(this).val();
+               
+                var url = '/Permissions/UserMapping' + (userId ? '?userId=' + userId : '');
+                window.location.href = url;
+            });
+
+          
+            var selectedUserId = '@ViewBag.SelectedUserId';
+            if (selectedUserId && selectedUserId !== '') {
+             
+                $('#treeContainer').css('opacity', '0.5');
+
+                $.get('/Permissions/GetUserOverrides?userId=' + selectedUserId, function (overrides) {
+                   
+                    $('.permission-checkbox').prop('checked', false);
+
+                    if (overrides && overrides.length > 0) {
+                        overrides.forEach(function (item) {
+                           
+                            $('#perm_' + item.permissionId).prop('checked', item.isAllowed);
+                        });
+                    }
+                    $('#treeContainer').css('opacity', '1');
+                });
+            }
+        });
+
+        
+        function saveOverride(uId, pId, allowed) {
+            $.post('/Permissions/SaveUserOverride', { userId: uId, permissionId: pId, isAllowed: allowed });
+        }
+
+       
+        function resetToDefaults(uId) {
+            if (confirm("Kya aap is user ki saari custom settings hatakar ise wapas default Role settings par lana chahte hain?")) {
+                $.post('/Permissions/ResetUserPermissions', { userId: uId }, function (res) {
+                    if (res.success) { location.reload(); }
+                });
+            }
+        }
+    </script>
+}
